@@ -16,7 +16,7 @@
         <!-- Styles -->
    
     </head>
-    <body>
+    <body >
     <?php
     
 
@@ -76,9 +76,7 @@
                 <div class="uk-navbar-right">
             
                     <ul class="uk-navbar-nav">
-                           
-                            
-                               
+    
                      
                         <li>
                                 <div class="uk-flex uk-flex-center">
@@ -92,43 +90,33 @@
                 </div>
             
             </nav>
-     <div class="container">
-        <div class="flex-center position-ref full-height">
-            
-            </div>
-           
-                <ul class="uk-thumbnav" uk-margin>
-                    @foreach ( $items as $item )
-                  
-                <div  class="uk-card uk-card-default uk-grid-collapse uk-child-width-1-2@s uk-margin" uk-grid>
+     <div id="app">
+     
+        
+        <div v-for="post in posts">
+              
+            <div  class="uk-card uk-card-default uk-grid-collapse uk-child-width-1-2@s uk-margin" uk-grid>
                    
-                            <div class="uk-card-media-left uk-cover-container">
-                                   
-                            <img src="{{$item['picture']}}" data-sizes="(min-width: 650px) 650px, 100vw" uk-img alt="" uk-cover>
-                                <canvas width="600" height="400"></canvas>
-                               
-                            </div>
-                         
-                                <div class="uk-card-body">
-                                <h3 class="uk-card-title">{{$item['title']}}</h3>
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>
-                                    <p uk-margin>
-                                    <button class="uk-button uk-button-primary">  <div class="item"  data-id="{{$item['nid']}}" >Bookmark me!</div></button>
-                                            <button class="uk-button uk-button-default"> <div class="item1"  data-id="{{$item['nid']}}" >UnBookmark me!</div></button>
-                                        
-                                        </p>
-                                   
-                                     
-                                  
-                                   
-                                </div>
-                            </div>
+                    <div class="uk-card-media-left uk-cover-container">
+                           
+                    <img src="" data-sizes="(min-width: 650px) 650px, 100vw" uk-img alt="" uk-cover>
+                    <canvas width="600" height="400"></canvas>
+                       
+                    </div>
+                 
+                        <div class="uk-card-body">
+                        <h3 class="uk-card-title">@{{post.title}}</h3>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>
+                            <p uk-margin>
+                                    @{{post.id}}
+                            <button class="uk-button uk-button-primary">  <div class="item"  data-id="" @click="addbookmark(post)" >Bookmark me!</div></button>
+                                    <button class="uk-button uk-button-default"> <div class="item1"  data-id="" @click="deletebookmark(post)" >UnBookmark me!</div></button>
+                                
+                                </p>
                         </div>
-                        
-                     
-                    @endforeach                      
-                        
-                    </ul>
+                    </div>
+                </div>
+     </div>
                     <ul class="uk-pagination uk-flex-center" uk-margin>
                             <li><a href="#"><span uk-pagination-previous></span></a></li>
                             <li><a href=".">1</a></li>
@@ -140,43 +128,64 @@
                         
             </div>
         </div>
-      
         <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.1.6/js/uikit.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.1.6/js/uikit-icons.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-<script>
-    $(document).ready(function(){
-        $('.item').click(function(e){
-            e.preventDefault();
-            let id = $(this).data('id');
-            $.ajax({
-                headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    },
-              type: "POST",
-              url: "setbookmark",
-              data: { id: id , _token: '{{csrf_token()}}'}
-            }).done(function( msg ) {
-              alert( "Data Saved: " + msg );
-            });
-        });
-        $('.item1').click(function(){
-                    let id = $(this).data('id');
-                
-                    $.ajax({
-                        headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-                      type: "POST",
-                      url: "unsetbookmark",
-                      data: { id: id , _token: '{{csrf_token()}}'}
-                    }).done(function( msg ) {
-                      alert( "Data Saved: " + msg );
-                    });
-                });
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.18/vue.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.18/vue.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.15.2/axios.js"></script>
+<script src="https://unpkg.com/vue"></script>
 
-    });
-    </script>
+<script>
+new Vue({
+  el: '#app',
+  data () {
+    return {
+      
+      posts: [],
+      post : { id : '', title : '' }
+
+    }
+  },
+
+  mounted () {
+    let obj = this;
+    axios
+      .get('https://jsonplaceholder.typicode.com/posts')
+      .then((function (resp) {
+          
+                    obj.posts = resp.data;
+                    
+                }))
+  },
+  methods : {
+        
+        addbookmark : function (post) {
+            if(post.id) {
+                $.post('api/posts' , {
+                    id :post.id,
+
+                }).done(function (response) {
+                alert(response);
+                }.bind(this));
+            }
+        },
+        deletebookmark: function (post) {
+            if(confirm("Are You Sure You Want to Delete This Bookmark ?")) {
+                $.post('api/post/' + post.id , {
+                   
+                }).done(function (response) {
+                   alert(response);
+                }.bind(this));
+            }
+        }
+    }
+})
+
+        </script>
+\
+
+ 
 
     </body>
 </html>
